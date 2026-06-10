@@ -5,7 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import br.edu.ifgoiano.academico.sd_academico_aluno_service.entity.Aluno;
+import br.edu.ifgoiano.academico.sd_academico_aluno_service.dto.AlunoRequestDTO;
+import br.edu.ifgoiano.academico.sd_academico_aluno_service.dto.AlunoResponseDTO;
 import br.edu.ifgoiano.academico.sd_academico_aluno_service.service.AlunoService;
 
 import java.util.List;
@@ -24,20 +25,17 @@ public class AlunoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Aluno criarAluno(@RequestBody Aluno aluno) {
-        logger.info("[ALUNO-SERVICE] POST /alunos - matrícula: {}", aluno.getMatricula());
-        return service.criarAluno(aluno);
+    public AlunoResponseDTO criarAluno(@RequestBody AlunoRequestDTO request) {
+        return service.criarAluno(request);
     }
 
     @GetMapping
-    public List<Aluno> listarTodos() {
-        logger.info("[ALUNO-SERVICE] GET /alunos");
+    public List<AlunoResponseDTO> listarTodos() {
         return service.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public Aluno buscarPorId(@PathVariable Long id) {
-        logger.info("[ALUNO-SERVICE] GET /alunos/{}", id);
+    public AlunoResponseDTO buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id);
     }
 
@@ -45,5 +43,10 @@ public class AlunoController {
     public boolean alunoExiste(@PathVariable Long id) {
         logger.info("[ALUNO-SERVICE] GET /alunos/{}/existe", id);
         return service.alunoExiste(id);
+    }
+
+    @GetMapping("/{id}/ativo")
+    public boolean alunoAtivo(@PathVariable Long id) {
+        return service.alunoAtivo(id);
     }
 }
