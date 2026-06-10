@@ -2,6 +2,8 @@ package br.edu.ifgoiano.academico.sd_academico_aluno_service.service;
 
 import org.springframework.stereotype.Service;
 
+import br.edu.ifgoiano.academico.sd_academico_aluno_service.dto.AlunoRequestDTO;
+import br.edu.ifgoiano.academico.sd_academico_aluno_service.dto.AlunoResponseDTO;
 import br.edu.ifgoiano.academico.sd_academico_aluno_service.entity.Aluno;
 import br.edu.ifgoiano.academico.sd_academico_aluno_service.enums.StatusAluno;
 import br.edu.ifgoiano.academico.sd_academico_aluno_service.repository.AlunoRepository;
@@ -17,33 +19,65 @@ public class AlunoService {
         this.repository = repository;
     }
 
-    public Aluno criarAluno(Aluno aluno) {
+    public AlunoResponseDTO criarAluno(AlunoRequestDTO request) {
 
-        if (repository.existsByMatricula(aluno.getMatricula())) {
+        if (repository.existsByMatricula(request.getMatricula())) {
             throw new RuntimeException("Matrícula já cadastrada.");
         }
 
-        if (repository.existsByEmail(aluno.getEmail())) {
+        if (repository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email já cadastrado.");
         }
 
-        if (aluno.getStatus() == null) {
-            aluno.setStatus(StatusAluno.ATIVO);
-        }
+        Aluno aluno = new Aluno();
+        aluno.setNome(request.getNome());
+        aluno.setMatricula(request.getMatricula());
+        aluno.setEmail(request.getEmail());
+        aluno.setCurso(request.getCurso());
+        aluno.setStatus(request.getStatus() != null ? request.getStatus() : StatusAluno.ATIVO);
 
-        return repository.save(aluno);
+        return paraResponse(repository.save(aluno));
     }
 
-    public List<Aluno> listarTodos() {
-        return repository.findAll();
+    public List<AlunoResponseDTO> listarTodos() {
+        return repository.findAll().stream()
+                .map(this::paraResponse)
+                .toList();
     }
 
-    public Aluno buscarPorId(Long id) {
-        return repository.findById(id)
+    public AlunoResponseDTO buscarPorId(Long id) {
+        Aluno aluno = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado."));
+        return paraResponse(aluno);
     }
 
     public boolean alunoExiste(Long id) {
         return repository.existsById(id);
+    }
+
+    /**
+     * Indica se o aluno existe E está com status ATIVO.
+     * Usado pelo matrícula-service para impedir que alunos
+     * INATIVOS ou TRANCADOS se matriculem.
+     */
+    public boolean alunoAtivo(Long id) {
+        return repository.findById(id)
+                .map(aluno -> aluno.getStatus() == StatusAluno.ATIVO)
+                .orElse(false);
+    }
+
+    /**
+     * Converte a entidade Aluno no DTO de resposta exposto pela API.
+     */
+    private AlunoResponseDTO paraResponse(Aluno aluno) {
+        AlunoResponseDTO response = new AlunoResponseDTO();
+        response.setId(aluno.getId());
+        response.setNome(aluno.getNome());
+        response.setMatricula(aluno.getMatricula());
+        response.setEmail(aluno.getEmail());
+        response.setCurso(aluno.getCurso());
+        response.setStatus(aluno.getStatus());
+        response.setDataCriacao(aluno.getDataCriacao());
+        return response;
     }
 }
