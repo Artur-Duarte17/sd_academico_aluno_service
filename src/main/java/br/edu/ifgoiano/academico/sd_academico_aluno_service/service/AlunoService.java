@@ -1,5 +1,7 @@
 package br.edu.ifgoiano.academico.sd_academico_aluno_service.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import br.edu.ifgoiano.academico.sd_academico_aluno_service.dto.AlunoRequestDTO;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Service
 public class AlunoService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AlunoService.class);
 
     private final AlunoRepository repository;
 
@@ -52,7 +56,9 @@ public class AlunoService {
     }
 
     public boolean alunoExiste(Long id) {
-        return repository.existsById(id);
+        boolean existe = repository.existsById(id);
+        logger.info("[ALUNO-SERVICE] Verificando existência do aluno ID: {} -> {}", id, existe);
+        return existe;
     }
 
     /**

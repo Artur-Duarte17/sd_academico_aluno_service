@@ -1,5 +1,7 @@
 package br.edu.ifgoiano.academico.sd_academico_aluno_service.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/alunos")
 public class AlunoController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AlunoController.class);
 
     private final AlunoService service;
 
@@ -37,6 +41,7 @@ public class AlunoController {
 
     @GetMapping("/{id}/existe")
     public boolean alunoExiste(@PathVariable Long id) {
+        logger.info("[ALUNO-SERVICE] GET /alunos/{}/existe", id);
         return service.alunoExiste(id);
     }
 
